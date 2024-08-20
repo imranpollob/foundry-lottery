@@ -9,4 +9,11 @@ Topics covered in this project:
 https://github.com/Cyfrin/foundry-smart-contract-lottery-cu
 
 
+Run the make file
+```bash
+# shows available options
+make 
+# run a make command
+make commandName
+```
 
