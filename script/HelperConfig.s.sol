@@ -18,6 +18,8 @@ abstract contract CodeConstants {
 }
 
 contract HelperConfig is CodeConstants, Script {
+    error HelperConfig_InvalidChainId();
+
     struct NetworkConfig {
         // Raffle constructor parameters
         uint256 subscriptionId;
@@ -82,7 +84,7 @@ contract HelperConfig is CodeConstants, Script {
         VRFCoordinatorV2_5Mock vrfCoordinatorV2_5Mock =
             new VRFCoordinatorV2_5Mock(MOCK_BASE_FEE, MOCK_GAS_PRICE_LINK, MOCK_WEI_PER_UNIT_LINK);
 
-        uint subscriptionId = vrfCoordinatorV2_5Mock.createSubscription();
+        uint256 subscriptionId = vrfCoordinatorV2_5Mock.createSubscription();
 
         vm.stopBroadcast();
 
@@ -100,6 +102,20 @@ contract HelperConfig is CodeConstants, Script {
         // send ether to the default sender
         vm.deal(localNetworkConfig.account, 100 ether);
 
-        return localNetworkConfig
+        return localNetworkConfig;
+    }
+
+    function getConfigByChainId(uint256 chainId) public returns (NetworkConfig memory) {
+        if (networkConfigs[chainId].vrfCoordinatorV2_5 != address(0)) return networkConfigs[chainId];
+        else if (chainId == LOCAL_CHAIN_ID) return getOrCreateAnvilEthConfig();
+        else revert HelperConfig_InvalidChainId();
+    }
+
+    function getConfig() public returns (NetworkConfig memory) {
+        return getConfigByChainId(block.chainid);
+    }
+
+    function setConfig(uint256 chainId, NetworkConfig memory networkConfig) public {
+        networkConfigs[chainId] = networkConfig;
     }
 }
