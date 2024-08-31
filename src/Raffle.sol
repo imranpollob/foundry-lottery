@@ -86,8 +86,8 @@ contract Raffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
         uint256 interval,
         uint256 entryFee,
         uint32 callbackGasLimit,
-        address vrfCoordinatorV2
-    ) VRFConsumerBaseV2Plus(vrfCoordinatorV2) {
+        address vrfCoordinatorV2_5
+    ) VRFConsumerBaseV2Plus(vrfCoordinatorV2_5) {
         i_subscriptionId = subscriptionId;
         i_keyHash = keyHash;
         i_interval = interval;
@@ -135,6 +135,10 @@ contract Raffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
         s_players.push(payable(msg.sender));
         emit EnteredRaffle(msg.sender);
     }
+
+    // chainlink automation keepers call checkupkeep regularly if the upkeepNeeded value if true or not. It's done offchain
+    // when upkeepNeeded is true it will execute performUpkeep which will call requestRandomWords
+    // finally chainlink vrf will call fulfillRandomWords with randomWords
 
     // executed by keeper, upkeepNeeded boolean to indicate whether the keeper should call performUpkeep or not
     // tips: while overriding, visibility modifier can be extended meaning external can become public. view/pure can be added
