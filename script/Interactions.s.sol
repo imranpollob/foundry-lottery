@@ -34,3 +34,79 @@ contract CreateSubscription is Script {
         return createSubscriptionUsingConfig();
     }
 }
+
+contract AddConsumer is Script {
+    function addConsumer(
+        address contractToAddToVrf,
+        address vrfCoordinatorV2_5,
+        uint256 subscriptionId,
+        address account
+    ) public {
+        console.log("Adding consumer contract: ", contractToAddToVrf);
+        console.log("Using vrfCoordinator: ", vrfCoordinatorV2_5);
+        console.log("On ChainID: ", block.chainid);
+
+        vm.startBroadcast(account);
+        VRFCoordinatorV2_5Mock(vrfCoordinatorV2_5).addConsumer(subscriptionId, contractToAddToVrf);
+        vm.stopBroadcast();
+    }
+
+    function run() external {
+        address mostRecentlyDeployed = DevOpsTools.get_most_recent_deployment("Raffle", block.chainid);
+
+        HelperConfig helperConfig = new HelperConfig();
+
+        uint256 subscriptionId = helperConfig.getConfig().subscriptionId;
+        address vrfCoordinatorV2_5 = helperConfig.getConfig().vrfCoordinatorV2_5;
+        address account = helperConfig.getConfig().account;
+
+        addConsumer(mostRecentlyDeployed, vrfCoordinatorV2_5, subscriptionId, account);
+    }
+}
+
+contract FundSubscription is CodeConstants, Script {
+    uint96 public constant FUND_AMOUNT = 3 ether;
+
+    function run() external {
+        HelperConfig helperConfig = new HelperConfig();
+
+        uint256 subscriptionId = helperConfig.getConfig().subscriptionId;
+        address vrfCoordinatorV2_5 = helperConfig.getConfig().vrfCoordinatorV2_5;
+        address link = helperConfig.getConfig().link;
+        address account = helperConfig.getConfig().account;
+
+        if (subscriptionId == 0) {
+            CreateSubscription createSubscription = new CreateSubscription();
+
+            (uint256 updateSubscriptionId, address updateVRF) = createSubscription.run();
+            subscriptionId = updateSubscriptionId;
+            vrfCoordinatorV2_5 = updateVRF;
+
+            console.log("New subscriptionId is created: ", subscriptionId);
+            console.log("vrfCoordinatorV2_5 address: ", vrfCoordinatorV2_5);
+        }
+    }
+
+    function fundSubscription(address vrfCoordinatorV2_5, uint256 subscriptionId, address link, address account)
+        public
+    {
+        console.log("Funding subscription: ", subscriptionId);
+        console.log("Using vrfCoordinator: ", vrfCoordinatorV2_5);
+        console.log("On ChainID: ", block.chainid);
+
+        if (block.chainid == LOCAL_CHAIN_ID) {
+            vm.startBroadcast(account);
+            VRFCoordinatorV2_5Mock(vrfCoordinatorV2_5).fundSubscription(subId, FUND_AMOUNT);
+            vm.stopBroadcast();
+        } else {
+            console.log(LinkToken(link).balanceOf(msg.sender));
+            console.log(msg.sender);
+            console.log(LinkToken(link).balanceOf(address(this)));
+            console.log(address(this));
+
+            vm.startBroadcast(account);
+            LinkToken(link).transferAndCall(vrfCoordinatorV2_5, FUND_AMOUNT, abi.encode(subscriptionId));
+            vm.stopBroadcast();
+        }
+    }
+}
