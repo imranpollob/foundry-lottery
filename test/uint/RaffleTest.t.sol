@@ -62,13 +62,13 @@ contract RaffleTest is Test, CodeConstants {
 
     function testRaffleRevertsWHenYouDontPayEnought() public {
         vm.prank(PLAYER);
-        vm.expectRevert(Raffle.Raffle__SendMoreToEnterRaffle.selector);
+        vm.expectRevert(Raffle.Raffle_NotEnoughEthSent.selector);
         raffle.enterRaffle();
     }
 
     function testRaffleRecordsPlayerWhenTheyEnter() public {
         vm.prank(PLAYER);
-        raffle.enterRaffle{value: raffleEntranceFee}();
+        raffle.enterRaffle{value: entryFee}();
         address playerRecorded = raffle.getPlayer(0);
         assert(playerRecorded == PLAYER);
     }
@@ -77,7 +77,7 @@ contract RaffleTest is Test, CodeConstants {
         vm.prank(PLAYER);
         vm.expectEmit(true, false, false, false, address(raffle));
         emit RaffleEnter(PLAYER);
-        raffle.enterRaffle{value: raffleEntranceFee}();
+        raffle.enterRaffle{value: entryFee}();
     }
 
     

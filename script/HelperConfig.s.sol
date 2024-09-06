@@ -43,7 +43,7 @@ contract HelperConfig is CodeConstants, Script {
         // we will create the local config from calling getOrCreateAnvilEthConfig() function
     }
 
-    function geMainnetEthConfig() public pure returns (NetworkConfig memory mainnetNetworkConfig) {
+    function getMainnetEthConfig() public pure returns (NetworkConfig memory mainnetNetworkConfig) {
         // https://docs.chain.link/vrf/v2-5/supported-networks#ethereum-mainnet
         mainnetNetworkConfig = NetworkConfig({
             subscriptionId: 0, // if left 0 then our script will create one
