@@ -17,3 +17,6 @@ make
 make commandName
 ```
 
+RPC URLs: https://drpc.org/chainlist
+
+
