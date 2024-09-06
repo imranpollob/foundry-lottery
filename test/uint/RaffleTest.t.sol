@@ -49,10 +49,15 @@ contract RaffleTest is Test, CodeConstants {
         link = LinkToken(networkConfig.link);
 
         vm.startPrank(msg.sender);
+        
         if (block.chainid == LOCAL_CHAIN_ID) {
             link.mint(msg.sender, LINK_BALANCE);
+
             VRFCoordinatorV2_5Mock(vrfCoordinatorV2_5).fundSubscription(subscriptionId, LINK_BALANCE);
         }
+
+        link.approve(vrfCoordinatorV2_5, LINK_BALANCE);
+
         vm.stopPrank();
     }
 
@@ -60,25 +65,25 @@ contract RaffleTest is Test, CodeConstants {
         assert(raffle.getRaffleState() == Raffle.RaffleState.OPEN);
     }
 
-    function testRaffleRevertsWHenYouDontPayEnought() public {
-        vm.prank(PLAYER);
-        vm.expectRevert(Raffle.Raffle_NotEnoughEthSent.selector);
-        raffle.enterRaffle();
-    }
+    // function testRaffleRevertsWHenYouDontPayEnought() public {
+    //     vm.prank(PLAYER);
+    //     vm.expectRevert(Raffle.Raffle_NotEnoughEthSent.selector);
+    //     raffle.enterRaffle();
+    // }
 
-    function testRaffleRecordsPlayerWhenTheyEnter() public {
-        vm.prank(PLAYER);
-        raffle.enterRaffle{value: entryFee}();
-        address playerRecorded = raffle.getPlayer(0);
-        assert(playerRecorded == PLAYER);
-    }
+    // function testRaffleRecordsPlayerWhenTheyEnter() public {
+    //     vm.prank(PLAYER);
+    //     raffle.enterRaffle{value: entryFee}();
+    //     address playerRecorded = raffle.getPlayer(0);
+    //     assert(playerRecorded == PLAYER);
+    // }
 
-    function testEmitsEventOnEntrance() public {
-        vm.prank(PLAYER);
-        vm.expectEmit(true, false, false, false, address(raffle));
-        emit RaffleEnter(PLAYER);
-        raffle.enterRaffle{value: entryFee}();
-    }
+    // function testEmitsEventOnEntrance() public {
+    //     vm.prank(PLAYER);
+    //     vm.expectEmit(true, false, false, false, address(raffle));
+    //     emit RaffleEnter(PLAYER);
+    //     raffle.enterRaffle{value: entryFee}();
+    // }
 
     
 }

@@ -78,13 +78,15 @@ contract FundSubscription is CodeConstants, Script {
         if (subscriptionId == 0) {
             CreateSubscription createSubscription = new CreateSubscription();
 
-            (uint256 updateSubscriptionId, address updateVRF) = createSubscription.run();
+            (uint256 updateSubscriptionId, address updatedVRF) = createSubscription.run();
             subscriptionId = updateSubscriptionId;
-            vrfCoordinatorV2_5 = updateVRF;
+            vrfCoordinatorV2_5 = updatedVRF;
 
             console.log("New subscriptionId is created: ", subscriptionId);
             console.log("vrfCoordinatorV2_5 address: ", vrfCoordinatorV2_5);
         }
+
+        fundSubscription(vrfCoordinatorV2_5, subscriptionId, link, account);
     }
 
     function fundSubscription(address vrfCoordinatorV2_5, uint256 subscriptionId, address link, address account)
