@@ -13,7 +13,7 @@ import {VRFCoordinatorV2_5Mock} from "@chainlink/contracts/src/v0.8/vrf/mocks/VR
 
 contract RaffleTest is Test, CodeConstants {
     event RequestedRaffleWinner(uint256 indexed requestId);
-    event RaffleEnter(address indexed player);
+    event EnteredRaffle(address indexed player);
     event WinnerPicked(address indexed player);
 
     Raffle public raffle;
@@ -49,7 +49,7 @@ contract RaffleTest is Test, CodeConstants {
         link = LinkToken(networkConfig.link);
 
         vm.startPrank(msg.sender);
-        
+
         if (block.chainid == LOCAL_CHAIN_ID) {
             link.mint(msg.sender, LINK_BALANCE);
 
@@ -65,25 +65,23 @@ contract RaffleTest is Test, CodeConstants {
         assert(raffle.getRaffleState() == Raffle.RaffleState.OPEN);
     }
 
-    // function testRaffleRevertsWHenYouDontPayEnought() public {
-    //     vm.prank(PLAYER);
-    //     vm.expectRevert(Raffle.Raffle_NotEnoughEthSent.selector);
-    //     raffle.enterRaffle();
-    // }
+    function testRaffleRevertsWHenYouDontPayEnought() public {
+        vm.prank(PLAYER);
+        vm.expectRevert(Raffle.Raffle_NotEnoughEthSent.selector);
+        raffle.enterRaffle();
+    }
 
-    // function testRaffleRecordsPlayerWhenTheyEnter() public {
-    //     vm.prank(PLAYER);
-    //     raffle.enterRaffle{value: entryFee}();
-    //     address playerRecorded = raffle.getPlayer(0);
-    //     assert(playerRecorded == PLAYER);
-    // }
+    function testRaffleRecordsPlayerWhenTheyEnter() public {
+        vm.prank(PLAYER);
+        raffle.enterRaffle{value: entryFee}();
+        address playerRecorded = raffle.getPlayer(0);
+        assert(playerRecorded == PLAYER);
+    }
 
-    // function testEmitsEventOnEntrance() public {
-    //     vm.prank(PLAYER);
-    //     vm.expectEmit(true, false, false, false, address(raffle));
-    //     emit RaffleEnter(PLAYER);
-    //     raffle.enterRaffle{value: entryFee}();
-    // }
-
-    
+    function testEmitsEventOnEntrance() public {
+        vm.prank(PLAYER);
+        vm.expectEmit(true, false, false, false, address(raffle));
+        emit EnteredRaffle(PLAYER);
+        raffle.enterRaffle{value: entryFee}();
+    }
 }
